@@ -1,15 +1,15 @@
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-} from "./ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { useEffect, useState } from "react";
 import { CommentComponent } from "./comment-component";
 import type { Post } from "../models/post";
 import type { Comment } from "../models/comment";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "./ui/scroll-area";
 import { ExitButton } from "./exit-button";
 import { Separator } from "./ui/separator";
 
@@ -55,22 +55,25 @@ export function PostDialog({
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent>
         <ExitButton onClose={onClose} />
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-start">
-            {post.title}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-start">
-            {post.body}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+        <DialogHeader>
+          <DialogTitle className="text-start">{post.title}</DialogTitle>
+          <DialogDescription className="text-start">
+            <ScrollArea
+              type="always"
+              className="w-full min-h-[50px] max-h-[30vh] overflow-auto rounded-md border border-transparent p-4"
+            >
+              {post.body}
+            </ScrollArea>
+          </DialogDescription>
+        </DialogHeader>
         <Separator />
         <h3 className="text-start font-semibold">Comments</h3>
         <ScrollArea
           type="always"
-          className="w-full min-h-[200px] max-h-[50vh] overflow-auto rounded-md border p-4"
+          className="w-full min-h-[200px] max-h-[30vh] overflow-auto rounded-md border border-transparent p-4"
         >
           {isLoadingComments
             ? "Loading comments..."
@@ -78,18 +81,7 @@ export function PostDialog({
                 <CommentComponent key={comment.id} comment={comment} />
               ))}
         </ScrollArea>
-        {/* <ScrollArea className="h-72 w-48 rounded-md border">
-          <div className="p-4">
-            <h4 className="mb-4 text-sm leading-none font-medium">Tags</h4>
-            {tags.map((tag) => (
-              <React.Fragment key={tag}>
-                <div className="text-sm">{tag}</div>
-                <Separator className="my-2" />
-              </React.Fragment>
-            ))}
-          </div>
-        </ScrollArea> */}
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }

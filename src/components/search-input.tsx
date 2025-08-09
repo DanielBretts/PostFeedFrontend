@@ -8,10 +8,10 @@ type Props = {
 
 export function SearchInput({ placeholder, onInputChange }: Props) {
   return (
-    <div className="group flex items-center justify-between rounded-lg border border-border transition-shadow duration-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:shadow-lg">
+    <div className="w-full group flex items-center justify-between rounded-lg border border-border transition-shadow duration-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:shadow-lg">
       <Input
         placeholder={placeholder || "Search"}
-        className="border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="border-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-md"
         onChange={(e) => onInputChange(e.target.value)}
       />
       <Button

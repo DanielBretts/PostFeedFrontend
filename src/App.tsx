@@ -1,34 +1,51 @@
+import "./App.css";
 import { useState, useEffect } from "react";
-import { Separator } from "./components/ui/separator.tsx";
-import { SearchInput } from "./components/search-input.tsx";
-import type { Post } from "./models/post.ts";
+import { SelectedPostContext } from "./SelectedPostContext.ts";
 import { PostsContext } from "./PostsContext.ts";
+import { Header } from "./components/header.tsx";
+import { Separator } from "./components/ui/separator.tsx";
 import { PostMenu } from "./components/post-menu.tsx";
 import { ThemeProvider } from "./theme-provider";
-import { ModeToggle } from "./components/mode-toggle.tsx";
-import "./App.css";
-import { SelectedPostContext } from "./SelectedPostContext.ts";
+import { ApiConfig } from "./utils/ApiConfig.ts";
+import { CreatePostArea } from "./components/create-post-area.tsx";
+import { Toaster } from "sonner";
+import { PaginationControls } from "./components/pagination-controls.tsx";
+import type { Post } from "./models/post.ts";
 
 function App() {
+  const PAGE_SIZE = 10;
   const [searchInput, setSearchInput] = useState<string>("");
   const [allPosts, setAllPosts] = useState<Post[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  //TODO debounce search
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (searchInput.length !== 0) {
+      setTimeout(() => {
+        setDisplayedPosts(
+          allPosts.filter((post) =>
+            post.title?.includes(searchInput.toLowerCase())
+          )
+        );
+      }, 2000);
+    } else {
+      setDisplayedPosts(
+        allPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+      );
+    }
+  }, [searchInput, page, allPosts]);
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/posts"
+        const posts = await ApiConfig.get<Post[]>("/posts");
+        setAllPosts(posts);
+        setDisplayedPosts(
+          posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
         );
-        if (!response.ok) {
-          throw new Error("Failed to fetch posts");
-        }
-        const data: Post[] = await response.json();
-        setAllPosts(data);
-        setPosts(data);
       } catch (err) {
         setError((err as Error).message);
       } finally {
@@ -37,40 +54,48 @@ function App() {
     };
 
     fetchPosts();
-  }, []);
+  }, [page]);
 
   useEffect(() => {
-    setPosts(allPosts.filter((post) => post.title?.includes(searchInput)));
-  }, [searchInput, allPosts]);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [page]);
 
   if (error) return <div>Error: {error}</div>;
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <PostsContext.Provider value={posts}>
-        <div className="bg-background sticky z-10 top-0 flex justify-between w-full gap-2 m-4">
-          <div className="flex-1"></div>
+    <div className="flex flex-col items-center">
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <Toaster position="top-center" richColors />
+        <PostsContext.Provider value={displayedPosts}>
+          <Header onSearchChange={setSearchInput} />
 
-          <div className="flex-1 flex justify-center">
-            <SearchInput placeholder="Search" onInputChange={setSearchInput} />
-          </div>
-          <div className="flex-1 flex">
-            <ModeToggle />
-          </div>
-        </div>
-
-        <Separator className="my-4" />
-
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <SelectedPostContext.Provider
-            value={{ selectedPost, setSelectedPost }}
-          >
-            <PostMenu />
-          </SelectedPostContext.Provider>
-        )}
-      </PostsContext.Provider>
-    </ThemeProvider>
+          <Separator className="my-1" />
+          {searchInput.length > 0 ? (
+            <div className="text-center">{`Search Results (${displayedPosts.length})`}</div>
+          ) : (
+            <CreatePostArea />
+          )}
+          <Separator className="my-1" />
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            <SelectedPostContext.Provider
+              value={{ selectedPost, setSelectedPost }}
+            >
+              <PostMenu />
+            </SelectedPostContext.Provider>
+          )}
+          <PaginationControls
+            currentPage={page}
+            totalCount={allPosts.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+          />
+        </PostsContext.Provider>
+      </ThemeProvider>
+    </div>
   );
 }
 

@@ -9,14 +9,13 @@ export function PostMenu() {
   const posts = useContext(PostsContext);
   const selectedPostContext = useContext(SelectedPostContext);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
   if (!selectedPostContext)
     throw new Error("SelectedPostContext must be used within its provider");
 
   return (
-    <>
+    <div className="pl-2 pr-2">
       {posts.map((post) => (
-        <CardContainer className="inter-var">
+        <CardContainer key={post.id} className="inter-var">
           <div
             key={post.id}
             onClick={() => setSelectedPost(post)}
@@ -49,6 +48,6 @@ export function PostMenu() {
           />
         </div>
       )}
-    </>
+    </div>
   );
 }
