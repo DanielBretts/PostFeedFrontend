@@ -1,11 +1,10 @@
-# Project Name
+# Paygilant Home Assignment
 
 ## Setup and Run Instructions
 
 ### Prerequisites
 
 - Make sure you have [Node.js](https://nodejs.org/) installed (recommended version: >=14.x).
-- Pnpm
 
 ### Installation
 
@@ -27,7 +26,7 @@ npm install
 To start the project, run:
 
 ```bash
-npm start
+npm run dev
 ```
 
 ### Building the project
