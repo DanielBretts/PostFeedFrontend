@@ -4,14 +4,16 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
+} from "../components/ui/dialog";
 import { useEffect, useState } from "react";
-import { CommentComponent } from "./comment-component";
+import { CommentComponent } from "../components/CommentComponent";
 import type { Post } from "../models/post";
-import type { Comment } from "../models/comment";
-import { ScrollArea } from "./ui/scroll-area";
-import { ExitButton } from "./exit-button";
-import { Separator } from "./ui/separator";
+import type { Comment } from "../models/Comment";
+import { ScrollArea } from "../components/ui/scroll-area";
+import { ExitButton } from "../components/ExitButton";
+import { Separator } from "../components/ui/separator";
+import { ApiConfig } from "@/utils/ApiConfig";
+import { CommentSkeleton } from "@/components/CommentSkeleton";
 
 export function PostDialog({
   post,
@@ -28,14 +30,10 @@ export function PostDialog({
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await fetch(
-          `https://jsonplaceholder.typicode.com/comments?postId=${post.id}`
+        const response = await ApiConfig.get<Comment[]>(
+          `/comments?postId=${post.id}`
         );
-        if (!response.ok) {
-          throw new Error("Failed to fetch posts");
-        }
-        const data: Comment[] = await response.json();
-        setPostComments(data);
+        setPostComments(response);
       } catch (err) {
         setError((err as Error).message);
       } finally {
@@ -57,10 +55,10 @@ export function PostDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
-        <ExitButton onClose={onClose} />
+        <ExitButton onClose={() => handleOpenChange(false)} />
         <DialogHeader>
           <DialogTitle className="text-start">{post.title}</DialogTitle>
-          <DialogDescription className="text-start">
+          <DialogDescription className="text-start" asChild>
             <ScrollArea
               type="always"
               className="w-full min-h-[50px] max-h-[30vh] overflow-auto rounded-md border border-transparent p-4"
@@ -75,11 +73,17 @@ export function PostDialog({
           type="always"
           className="w-full min-h-[200px] max-h-[30vh] overflow-auto rounded-md border border-transparent p-4"
         >
-          {isLoadingComments
-            ? "Loading comments..."
-            : postComments.map((comment) => (
-                <CommentComponent key={comment.id} comment={comment} />
+          {isLoadingComments ? (
+            <>
+              {Array.from({ length: 5 }, (_, i) => (
+                <CommentSkeleton key={i} />
               ))}
+            </>
+          ) : (
+            postComments.map((comment) => (
+              <CommentComponent key={comment.id} comment={comment} />
+            ))
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

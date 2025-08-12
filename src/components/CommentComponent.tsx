@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import type { Comment } from "../models/comment";
+import type { Comment } from "../models/Comment";
 import { Separator } from "./ui/separator";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import * as React from "react";

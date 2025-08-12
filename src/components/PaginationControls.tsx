@@ -6,19 +6,12 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-
-type Props = {
-  currentPage: number;
-  totalCount: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-};
+} from "../components/ui/pagination";
+import { usePosts } from "../PostsContext";
 
 function getPageNumbers(current: number, total: number) {
-  // simple windowed pager: 1, ..., current-1, current, current+1, ..., total
   const pages: (number | "...")[] = [];
-  const window = 1; // show 1 on each side of current
+  const window = 1;
 
   const push = (p: number | "...") => pages.push(p);
 
@@ -26,7 +19,6 @@ function getPageNumbers(current: number, total: number) {
     for (let i = 1; i <= total; i++) push(i);
     return pages;
   }
-  // always show first
   push(1);
 
   const start = Math.max(2, current - window);
@@ -35,22 +27,21 @@ function getPageNumbers(current: number, total: number) {
   if (start > 2) push("...");
   for (let i = start; i <= end; i++) push(i);
   if (end < total - 1) push("...");
-  // always show last
+
   push(total);
   return pages;
 }
 
-export function PaginationControls({
-  currentPage,
-  totalCount,
-  pageSize,
-  onPageChange,
-}: Props) {
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const canPrev = currentPage > 1;
-  const canNext = currentPage < totalPages;
-
-  const pages = getPageNumbers(currentPage, totalPages);
+export function PaginationControls() {
+  const PAGE_SIZE = 10;
+  const { page, setPage, displayedPosts } = usePosts();
+  const totalPages = Math.max(
+    1,
+    Math.ceil(displayedPosts?.length ?? 1 / PAGE_SIZE)
+  );
+  const canPrev = page > 1;
+  const canNext = page < totalPages;
+  const pages = getPageNumbers(page, totalPages);
 
   return (
     <Pagination className="pb-2">
@@ -61,7 +52,7 @@ export function PaginationControls({
             aria-disabled={!canPrev}
             onClick={(e) => {
               e.preventDefault();
-              if (canPrev) onPageChange(currentPage - 1);
+              if (canPrev) setPage(page - 1);
             }}
           />
         </PaginationItem>
@@ -75,10 +66,10 @@ export function PaginationControls({
             <PaginationItem key={p}>
               <PaginationLink
                 href="#"
-                isActive={p === currentPage}
+                isActive={p === page}
                 onClick={(e) => {
                   e.preventDefault();
-                  onPageChange(p);
+                  setPage(p);
                 }}
               >
                 {p}
@@ -93,7 +84,7 @@ export function PaginationControls({
             aria-disabled={!canNext}
             onClick={(e) => {
               e.preventDefault();
-              if (canNext) onPageChange(currentPage + 1);
+              if (canNext) setPage(page + 1);
             }}
           />
         </PaginationItem>

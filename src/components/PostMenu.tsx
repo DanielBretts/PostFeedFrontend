@@ -1,20 +1,12 @@
-import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
-import { useState, useContext } from "react";
-import { PostsContext } from "../PostsContext";
-import { SelectedPostContext } from "../SelectedPostContext";
-import type { Post } from "@/models/post";
-import { PostDialog } from "./post-dialog";
+import { CardBody, CardContainer, CardItem } from "./ui/3d-card";
+import { usePosts } from "../PostsContext";
+import { PostDialog } from "@/pages/PostDialog";
 
 export function PostMenu() {
-  const posts = useContext(PostsContext);
-  const selectedPostContext = useContext(SelectedPostContext);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  if (!selectedPostContext)
-    throw new Error("SelectedPostContext must be used within its provider");
-
+  const { displayedPosts, selectedPost, setSelectedPost } = usePosts();
   return (
     <div className="pl-2 pr-2">
-      {posts.map((post) => (
+      {displayedPosts?.map((post) => (
         <CardContainer key={post.id} className="inter-var">
           <div
             key={post.id}
@@ -39,14 +31,8 @@ export function PostMenu() {
           </div>
         </CardContainer>
       ))}
-
       {selectedPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <PostDialog
-            post={selectedPost}
-            onClose={() => setSelectedPost(null)}
-          />
-        </div>
+        <PostDialog post={selectedPost} onClose={() => setSelectedPost(null)} />
       )}
     </div>
   );

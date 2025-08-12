@@ -3,7 +3,7 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { ApiConfig } from "../utils/ApiConfig";
 import { toast } from "sonner";
-import type { Post } from "../models/post";
+import type { Post } from "../models/Post";
 
 export function CreatePostArea() {
   //   const [isPostSubmitted, setIsPostSubmitted] = useState(false);

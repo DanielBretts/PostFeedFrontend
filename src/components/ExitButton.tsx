@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-export function ExitButton({ onClose }: { onClose: () => void }) {
+export function ExitButton({ onClose }: { onClose?: () => void }) {
   return (
     <div
       onClick={onClose}
