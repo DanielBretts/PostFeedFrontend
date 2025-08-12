@@ -29,11 +29,9 @@ export function PostsPage() {
         <Separator className="my-1" />
         {loading ? (
           <>
-            <PostSkeleton />
-            <PostSkeleton />
-            <PostSkeleton />
-            <PostSkeleton />
-            <PostSkeleton />
+            {Array.from({ length: 5 }, (_, i) => (
+              <PostSkeleton key={i} />
+            ))}
           </>
         ) : (
           <PostMenu />
